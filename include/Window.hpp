@@ -1,7 +1,15 @@
 #pragma once
 #include <GLFW/glfw3.h>
+
 #include  <vulkan/vulkan.hpp>
 
+#include "Logger.hpp"
+
+#ifdef DEBUG
+    static bool debug = true;
+#else
+    static bool debug = false;
+#endif
 
 class Window {
 public:
@@ -16,5 +24,8 @@ private:
     const char* title;
     int width, height;
     GLFWwindow* window{};
+    Logger logger;
     vk::Instance instance{};
+
+    void createGLFWwindow();
 };

@@ -11,9 +11,14 @@ add_subdirectory(lib/glm EXCLUDE_FROM_ALL)
 
 include_directories(include)
 
+
+
 add_executable(VulkanProject
         src/main.cpp
         src/window.cpp
+        src/logger.cpp
 )
+
+target_compile_definitions(VulkanProject PRIVATE DEBUG=1)
 
 target_link_libraries(${PROJECT_NAME} glfw ${GLFW_LIBRARIES} Vulkan::Vulkan)
