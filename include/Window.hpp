@@ -4,6 +4,7 @@
 #include  <vulkan/vulkan.hpp>
 
 #include "Logger.hpp"
+#include "Device.hpp"
 
 #ifdef DEBUG
     static bool debug = true;
@@ -26,6 +27,9 @@ private:
     GLFWwindow* window{};
     Logger logger;
     vk::Instance instance{};
+    Device device;
+
+    vk::SurfaceKHR surface{};
 
     void createGLFWwindow();
 };

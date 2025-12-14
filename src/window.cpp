@@ -16,7 +16,7 @@ bool supported(std::vector<const char*>& p_extensions,std::vector<const char *>&
     if (debug){
         std::cout << "Supported extensions: " << std::endl;
         for (vk::ExtensionProperties supportedExtension : supportedExtensions) {
-            std::cout << supportedExtension.extensionName << std::endl;
+            std::cout << "\t" << supportedExtension.extensionName << std::endl;
         }
     }
 
@@ -65,7 +65,6 @@ bool supported(std::vector<const char*>& p_extensions,std::vector<const char *>&
 
 Window::Window(const char* p_title,int p_width,int p_height):title(p_title),width(p_width),height(p_height),logger() {
 
-    createGLFWwindow();
 
     uint32_t version = VK_MAKE_API_VERSION(0,1,0,0);
     vkEnumerateInstanceVersion(&version);
@@ -88,6 +87,8 @@ Window::Window(const char* p_title,int p_width,int p_height):title(p_title),widt
 
     {
         extensions.push_back("VK_EXT_debug_utils");
+        extensions.push_back("VK_KHR_surface");
+        extensions.push_back("VK_KHR_win32_surface");
     }
 
     // debug = true;
@@ -96,24 +97,26 @@ Window::Window(const char* p_title,int p_width,int p_height):title(p_title),widt
     }
     vk::InstanceCreateInfo createInfo = vk::InstanceCreateInfo(vk::InstanceCreateFlags(),&appInfo,layers.size(),layers.data(),
         extensions.size(),extensions.data());
-    // createInfo.sType = vk::StructureType::eInstanceCreateInfo;
-    // createInfo.pApplicationInfo = &appInfo;
-    // createInfo.enabledExtensionCount = glfwExtensionCount;
-    // createInfo.ppEnabledExtensionNames = glfwExtensions;
 
-
-    // std::cout << glfwExtensions <<std::endl;
-
-    // debug = true;
-
-    // vk::createInstance()
     if (vk::createInstance(&createInfo, nullptr, &instance) != vk::Result::eSuccess) {
         throw std::runtime_error("failed to create instance!");
     }
 
-    // std::cout << glfwExtensionCount << std::endl;
+    createGLFWwindow();
+
+    VkSurfaceKHR cSurface = VK_NULL_HANDLE;
+
+    if (glfwCreateWindowSurface(instance, window, nullptr, &cSurface) != VK_SUCCESS) {
+        throw std::runtime_error("Failed to create window surface");
+    }
+
+    surface = cSurface;
+
+    // vkDestroySurfaceKHR(instance, cSurface, nullptr);
 
     logger = Logger(instance);
+
+    device = Device(instance,surface);
 
 }
 
@@ -123,6 +126,11 @@ bool Window::isWindowOpen() {
 
 void Window::cleanUp() {
     logger.cleanUp(instance);
+
+    device.destroy(instance);
+
+    instance.destroySurfaceKHR(surface);
+
     vkDestroyInstance(instance, nullptr);
 
     glfwDestroyWindow(window);
