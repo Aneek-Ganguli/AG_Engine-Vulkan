@@ -116,7 +116,7 @@ Window::Window(const char* p_title,int p_width,int p_height):title(p_title),widt
 
     logger = Logger(instance);
 
-    device = Device(instance,surface);
+    device = Device(instance,surface,window);
 
 }
 
@@ -130,6 +130,7 @@ void Window::cleanUp() {
     device.destroy(instance);
 
     instance.destroySurfaceKHR(surface);
+
 
     vkDestroyInstance(instance, nullptr);
 
